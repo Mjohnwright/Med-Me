@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Can Twilio read a time value? -->
+<!-- How will we handle multiple alerts?  Cannot find where to put that logic. Multiple inputs depend on the frequency. -->
+<!-- How to display the alert times on the board?  Just the first alert or all? -->
+<!-- time zone -->
+
+  <head>
+
+    <title>My Profile</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://clin-table-search.lhc.nlm.nih.gov/autocomplete-lhc-versions/15.1.1/autocomplete-lhc_jQueryUI.min.css'
+      rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--jQuery UI -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+      crossorigin="anonymous"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+    <!-- moment.js -->
+    <script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
+    <!-- MedMe Styles -->
+    <link rel="stylesheet" type="text/css" href="assets/CSS/reset.css">
+    <link rel="stylesheet" type="text/css" href="assets/CSS/style.css">
+    <!-- MeMe Scripts -->
+    <script>
+      var page = '';
+    </script>
+    <script src="assets/javascript/medme-firebase.js"></script>
+
+    <style>
+      .modal-body .col-sm-2,
+      .modal-body .col-sm-10 {
+        width: 100%
+      }
+
+      .modal-body .control-label {
+        text-align: left;
+      }
+
+      .modal-body .col-sm-offset-2 {
+        margin-left: 15px;
+      }
+
+      #searchResults {
+        z-index: 10000;
+      }
+    </style>
+  </head>
+
+  </head>
+
+  <body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">
+    <nav class="navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a href="index.html">ABOUT</a>
+            </li>
+            <li class="menu-signinout-link"></li>
+          </ul>
+        </div>
+    </nav>
+    <div class="jumbotron text-center">
+      <img src="assets/images/logo2.png" alt="LOGO">
+      </a>
+      <h1 id="medhead">
+        <i>Medication Dashboard</i>
+      </h1>
+    </div>
+    <div class="alert-area"></div>
+    <div id="about" class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table">
+            <caption class="lead">My Medications</caption>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Dosage</th>
+                <th>Doses/Day</th>
+                <th>Last Dose Taken</th>
+                <th>'First' Alert Time</th>
+                <th>Side Effects</th>
+                <th width="118px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="drug-table"></tbody>
+          </table>
+          <p>
+            <a class="btn btn-primary" data-toggle="modal" data-target="#add-drug-modal">Add Prescription</a>
+            <a class="btn btn-warning" style="float: right;" id="btn-list-drug-interaction">Check Interactions</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="add-drug-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+            <h4 class="modal-title">
+              Add Prescription
+            </h4>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label for="rxterms">Medicine Name</label>
+              <input type="text" id="rxterms" placeholder="ie. Tylenol...">
+            </div>
+            <div class="form-group">
+              <label for="drug-strengths">Prescribed Dosage </label>
+              <input type="text" id="drug-strengths" placeholder="ie. 5 mg...">
+            </div>
+            <div class="form-group">
+              <label for="how-often">Times Per Day</label>
+              <select class="form-control" id="drug-frequency">
+                <option>As Needed</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+              </select>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="form-group">
+              <label for="alert-time">Choose Your Alert Time(s)</label>
+              <br>
+              <input id="alert-time" type="time">
+
+            </div>
+
+            <div class="form-group">
+              <label for="drug-duration">Number of Days in Script</label>
+              <select class="form-control" id="drug-duration">
+                <option>Ongoing</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-add-drug" type="submit">
+              Add Prescription
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <script src='https://clin-table-search.lhc.nlm.nih.gov/autocomplete-lhc-versions/15.1.1/autocomplete-lhc_jQuery.min.js'></script>
+
+    <script>
+      // Autocomplete Prescription or DRUG
+      new Def.Autocompleter.Search('rxterms',
+        'https://clin-table-search.lhc.nlm.nih.gov/api/rxterms/v3/search?ef=STRENGTHS_AND_FORMS,RXCUIS'
+      );
+
+      // Creates empty dosage list until Prescription or DRUG is selected
+      new Def.Autocompleter.Prefetch('drug-strengths', []);
+      var NIHDrugName = '';
+      var NIHRxCUI = '';
+      var NIHDrugDosage = '';
+      // Creates dosage list after Prescription or DRUG is select
+      Def.Autocompleter.Event.observeListSelections('rxterms', function () {
+        console.log($('#rxterms'));
+        var drugField = $('#rxterms')[0];
+        var drugName = drugField.value;
+        NIHDrugName = drugField.value;
+        console.log(drugName);
+        var drugAutocomp = drugField.autocomp;
+        console.log(drugAutocomp);
+        var strengths = drugAutocomp.getItemExtraData(drugName)['STRENGTHS_AND_FORMS'];
+        var rxcui = drugAutocomp.getItemExtraData(drugName)['RXCUIS'];
+
+        console.log(strengths);
+        if (strengths) {
+          $('#drug-strengths')[0].autocomp.setListAndField(strengths, rxcui);
+        }
+      });
+      Def.Autocompleter.Event.observeListSelections('drug-strengths', function (data) {
+        console.log(data);
+        NIHDrugDosage = data.final_val;
+        NIHRxCUI = data.item_code
+      })
+
+      // watch for add drug request
+      $("#btn-add-drug").click(function () {
+        event.preventDefault();
+        $("#drug-table").html("");
+        // get drug details from user input
+        var drugName = NIHDrugName;
+        var drugDosage = NIHDrugDosage;
+        var drugFrequency = $("#drug-frequency").val();
+        var alertTime = $("#alert-time").val();
+        var drugDuration = $("#drug-duration").val();
+        var drugRxCUI = NIHRxCUI;
+        var time = 8 + Math.floor(16 / $("#drug-frequency").val()) + Math.floor(Math.random() *
+          $("#drug-frequency").val());
+        time = moment(time, "HH").format("hh:mm a");
+        var lastDoseTime = "Not Reported"; // time;
+        // add the drug to the user's profile
+        console.log(drugName, drugDosage, drugFrequency, alertTime, drugDuration, lastDoseTime, drugRxCUI);
+        addDrug(drugName, drugDosage, drugFrequency, alertTime, drugDuration, lastDoseTime, drugRxCUI);
+        $("#rxterms").val('');
+        $("#drug-strengths").val('');
+        $("#drug-frequency").val('');
+      });
+
+      $(document).ready(function () {
+        // watch for login/logout events
+        auth.onAuthStateChanged(function (user) {
+          console.log(user.uid);
+          if (user) {
+            // do things when logged in, like show the logout button and hide the login button
+            var query = database.ref('users/' + auth.currentUser.uid + '/rx').orderByKey();
+            query.on("value", function (snapshot) {
+              snapshot.forEach(function (childSnapshot) {
+                console.log(childSnapshot);
+                // childData is the actual contents of the child
+                var childData = childSnapshot.val();
+                var key = "T4No04ciH8D7nIsp6OflpZT1i2JC6XLxd8HUnhIc"
+                // var time = 8 + Math.floor(16 / childData.frequency) + Math.floor(Math.random() * childData.frequency);
+                // time = moment(time, "HH").format("hh:mm a");
+                var searchTerm = childData.RxCUI;
+                console.log(searchTerm)
+                $.ajax({
+                  url: "https://api.fda.gov/drug/event.json?api_key=" + key +
+                    "&search=rxcui:" +
+                    searchTerm,
+                  dataType: "json",
+                  success: function (data) {
+                    var sideEffects = "";
+                    for (i = 0; i < data.results.length; i++) {
+                      for (j = 0; j < data.results[i].patient.reaction.length; j++) {
+                        if (sideEffects.length == 0) {
+                          sideEffects += data.results[i].patient.reaction[j].reactionmeddrapt;
+                        } else {
+                          sideEffects += ', ' + data.results[i].patient.reaction[
+                            j].reactionmeddrapt;
+                        }
+                      }
+                    }
+
+                    var drugRow = '<tr><td>' + childData.name + '</td><td>' +
+                      childData.dosage +
+                      '</td><td>' + childData.frequency +
+                      '</td><td>' + childData.alert + 
+                       '</td><td>' + childData.lastDoseTime +
+                      '</td><td>' + sideEffects +
+                      '</td><td><div class="btn-group"><a href="map.html" class="btn btn-xs btn-default refill" id="' +
+                      childData.name +
+                      '">Refill</a><a class="btn btn-xs btn-danger btn-remove-drug" id="' +
+                      childSnapshot.key + '">Remove</a></div></td></tr>';
+                    $("#drug-table").append(drugRow)
+                  },
+                  error: function (jqXHR, exception) {
+                    var msg = '';
+                    if (jqXHR.status === 0) {
+                      msg = 'Not connect.\n Verify Network.';
+                    } else if (jqXHR.status == 404) {
+                      //msg = 'Requested page not found. [404]';
+                      var drugRow = '<tr><td>' + childData.name + '</td><td>' +
+                        childData.dosage +
+                        '</td><td>' + childData.frequency +
+                        '</td><td>' + childData.alert +
+                        '</td><td>' + childData.lastDoseTime +
+                        '</td><td>None' +
+                        '</td><td><div class="btn-group"><a href="map.html" class="btn btn-xs btn-default refill" id="' +
+                        childData.name +
+                        '">Refill</a><a class="btn btn-xs btn-danger btn-remove-drug" id="' +
+                        childSnapshot.key + '">Remove</a></div></td></tr>';
+                      $("#drug-table").append(drugRow)
+                    } else if (jqXHR.status == 500) {
+                      msg = 'Internal Server Error [500].';
+                    } else if (exception === 'parsererror') {
+                      msg = 'Requested JSON parse failed.';
+                    } else if (exception === 'timeout') {
+                      msg = 'Time out error.';
+                    } else if (exception === 'abort') {
+                      msg = 'Ajax request aborted.';
+                    } else {
+                      msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                    }
+                    $('.alert-area').html(msg);
+                  },
+                  type: 'GET',
+                });
+
+              });
+            });
+          } else {
+
+            // do things when logged out, like show the login button and hide the logout button
+            console.log("I am: no one");
+          }
+        });
+      });
+    </script>
+
+  </body>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>MedMe</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Comfortaa:300" rel="stylesheet">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+  <!-- MedMe Styles -->
+  <link rel="stylesheet" type="text/css" href="assets/CSS/reset.css">
+  <link rel="stylesheet" type="text/css" href="assets/CSS/style.css">
+  <!-- MeMe Scripts -->
+  <script>
+    var page = 'About';
+  </script>
+  <script src="assets/javascript/medme-firebase.js"></script>
+  <!-- NIH drug lookup -->
+  <link href='https://clin-table-search.lhc.nlm.nih.gov/autocomplete-lhc-versions/10.1.0/autocomplete-lhc_jQueryUI.min.css'
+    rel="stylesheet">
+</head>
+
+<body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">
+  <nav class="navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="menu-about-link"></li>
+          <li class="menu-profile-link"></li>
+          <li class="menu-signinout-link"></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="jumbotron text-center">
+    <img src="assets/images/logo2.png" alt="LOGO">
+    <p id="quote">
+      <i>"We make managing your
+        <span id="medication">medication</span> easier!"</i>
+    </p>
+
+    <form id="inputMedForm">
+      <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+          <div class="input-group">
+            <input type="text" id="med" class="form-control" placeholder="Find your medication here! --- Tylenol, Lipitor, etc..." />
+            <span class="input-group-btn">
+              <button class="btn btn-primary btn-sm" type="button" onclick="myFunction()">Submit</button>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="found-med">
+        <span id="medspan"></span>
+      </div>
+      <br>
+      <div class="join-here">
+        <div class="input-group-btn">
+          <p>Sign up for a FREE account and start tracking today!
+            <br>
+            
+            <a class="btn btn-primary btn-lg" href="signin.html">Try us Out!</a>
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Container (About Section) -->
+  <div id="about" class="container-fluid">
+    <div class="row">
+      <div class="col-sm-8 col-sm-offset-2">
+        <h3>About
+          <i>Med</i>
+          <b>ME</b>
+        </h3>
+        <h4>Dosage Maintenance and Administration</h4>
+        <p> At MedME we manage your PRESCRIPTIONS. Enter the information from your pharmacy's prescription label and we will create a
+          text alert schedule notfying you it is time to take your meds. Simply enter your medication name, your dosage amount and the time that
+          you are to take the medicine. We'll also inform you of any known drug interactions and side effects between your prescriptions. 
+          Great for those who care for the elderly.</p>
+
+      </div>
+      <div class="row">
+        <div class="col-lg-11 col-lg-offset-1">
+          <div class="input-group">
+            <br>
+            <h4>"World-class web developer and ruthless project grader Anthony Briglia says: "This app is awesome - I feel like I have alzheimers, I get a new experience everytime!"
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src='https://clin-table-search.lhc.nlm.nih.gov/autocomplete-lhc-versions/10.1.0/autocomplete-lhc_jQuery.min.js'></script>
+
+  <script>
+    new Def.Autocompleter.Search('med',
+      'https://clin-table-search.lhc.nlm.nih.gov/api/rxterms/v3/search?ef=STRENGTHS_AND_FORMS,RXCUIS');
+
+    function myFunction() {
+      var med = document.getElementById("med").value;
+      var medspan = document.getElementById("medspan");
+      var span1 = document.createElement("span");
+      span1.setAttribute("style", "color:black;font-weight:bolder;font-size:20px;");
+      span1.textContent = "Great News! We've found the ";
+      medspan.append(span1);
+      var span2 = document.createElement("span");
+      span2.setAttribute("style", "color:black;font-weight:bolder;font-size:40px;");
+      span2.textContent = med;
+      medspan.append(span2);
+      var span3 = document.createElement("span");
+      span3.setAttribute("style", "color:black;font-weight:bolder;font-size:20px;");
+      span3.textContent = " medication that you are taking!";
+      medspan.append(span3);
+    }
+  </script>
+
+</body>
+
+</html>

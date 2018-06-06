@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>Sign In</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <!--jQuery UI -->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+        <!-- Firebase -->
+        <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+            crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+            integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+        <!-- MedMe Styles -->
+        <link rel="stylesheet" type="text/css" href="assets/CSS/reset.css">
+        <link rel="stylesheet" type="text/css" href="assets/CSS/style.css">
+        <!-- MeMe Scripts -->
+        <script src="assets/javascript/medme-firebase.js"></script>
+
+
+    </head>
+
+    <body id="myPage">
+
+        <nav class="navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse" id="myNavbar">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="index.html">ABOUT</a>
+                        </li>
+                        <li>
+                            <a href="myprofile.html">PROFILE</a>
+                        </li>
+                        <!-- <li>
+                        <a href="tryUsOut.html">TRY US OUT</a>
+                    </li> -->
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="jumbotron text-center">
+            <img src="assets/images/logo2.png" alt="LOGO">
+            </a>
+            <h1 id="medhead">
+                <i>Pharmacies Near You</i>
+            </h1>
+        </div>
+
+
+        <!-- This is where the map will go -->
+        <div class="container" style="width: 75%;">
+            <div id="mapArea" style="height:400px;width:100%;"></div>
+        </div>
+
+
+        <!-- SCRIPT ************************* -->
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxHhHdb7ahwJfcsRX6xeQlhmUV7R6msLY&libraries=places"></script>
+
+        <script>
+            function findCoords(street = "1401 John F Kennedy Blvd", city = "Philadelphia", state =
+                "PA", zip = "19102") {
+                //location variable pulls the values from Firebase to create a string to use in API quiry URL
+
+                //Create a variable that represents the address string
+                var addr = "address=" + escape(street + " " + city + " " + state + " " + zip)
+                console.log(addr);
+
+                var APIkey = "&key=AIzaSyBxHhHdb7ahwJfcsRX6xeQlhmUV7R6msLY";
+                var mapQuery = "https://maps.googleapis.com/maps/api/geocode/json?";
+
+                //3 variables to create URL for API
+                var queryURL = mapQuery + addr + APIkey;
+                console.log(queryURL);
+
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                }).then(function (response) {
+                    //finds the longitude and latitude within the JSON object and assigns a variable
+                    var coordinates = {
+                        lat: response.results[0].geometry.location.lat,
+                        lng: response.results[0].geometry.location.lng
+                    };
+                    console.log(coordinates);
+                    //Calls the function
+                    initialize(coordinates);
+                });
+            }
+
+
+            $(document).ready(function () {
+                // watch for login/logout events
+                auth.onAuthStateChanged(function (user) {
+                    if (user) {
+                        // do things when logged in, like show the logout button and hide the login button
+                        var query = database.ref('users/' + user.uid);
+                        query.once("value")
+                            .then(function (snapshot) {
+                                snapshot.val().address
+                                console.log(snapshot);
+                                //Calls the function
+                                console.log(snapshot.val().address, snapshot.val()
+                                    .city, snapshot.val()
+                                    .state, snapshot.val().zip);
+                                findCoords(snapshot.val().address, snapshot.val()
+                                    .city, snapshot.val().state,
+                                    snapshot.val().zip);
+                            });
+                    }
+                });
+            });
+
+            var map;
+            var service;
+            var longitude;
+            var latitude;
+            var infowindow;
+
+            function initialize(coordinates) {
+                console.log(coordinates);
+
+
+                var pharmacyInArea = new google.maps.LatLng(coordinates.lat, coordinates.lng);
+
+                console.log(coordinates.lat);
+                console.log(pharmacyInArea);
+
+                map = new google.maps.Map(document.getElementById("mapArea"), {
+                    center: pharmacyInArea,
+                    zoom: 12
+                });
+                console.log(map);
+
+                infowindow = new google.maps.InfoWindow();
+                var service = new google.maps.places.PlacesService(map);
+                console.log(service);
+                service.nearbySearch({
+                        location: pharmacyInArea,
+                        radius: "3000",
+                        type: ["pharmacy"]
+                    },
+                    callback
+                );
+            }
+
+            function callback(results, status) {
+                console.log(results);
+                if (status == google.maps.places.PlacesServiceStatus.OK) {
+                    for (var i = 0; i < results.length; i++) {
+                        var place = results[i];
+                        createMarker(results[i]);
+                    }
+                }
+            }
+
+            function createMarker(place) {
+                var placeLoc = place.geometry.location;
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location
+                });
+
+                google.maps.event.addListener(marker, "click", function () {
+                    infowindow.setContent(place.name);
+                    infowindow.open(map, this);
+                });
+            }
+        </script>
+
+    </body>
+
+
+
+</html>

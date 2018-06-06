@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MedMe Messaging</title>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+</head>
+
+<body>
+</body>
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyC9MDdcy45WokbyKUmzPf93RpeAcKaWcWo",
+        authDomain: "medme-f87ee.firebaseapp.com",
+        databaseURL: "https://medme-f87ee.firebaseio.com",
+        projectId: "medme-f87ee",
+        storageBucket: "medme-f87ee.appspot.com",
+        messagingSenderId: "658068228468"
+    };
+    firebase.initializeApp(config);
+
+    var database = firebase.database();
+    var auth = firebase.auth();
+    var twilioSid = "";
+    var twilioToken = "";
+    var authData = btoa(twilioSid + ':' + twilioToken);
+
+
+    var email = "MEDME-ADMIN-30edcioi3KIESiw03@Djdj34jdSJ38dmK148J.INFO";
+    var password = "fh849*#hbBA(485JDU(#bfekq2j948rdj3JHu3*84J"
+    // log the user in
+    firebase.auth().signInWithEmailAndPassword(email, password)
+
+
+    // watch for login/logout events
+    auth.onAuthStateChanged(function (user) {
+        if (user) {
+            // do things when logged in, like show the logout button and hide the login button
+            console.log("I am: " + user.email);
+        } else {
+            // do things when logged out, like show the login button and hide the logout button
+            console.log("I am: no one");
+        }
+    });
+
+    var query = database.ref('users').orderByKey();
+    query.once("value", function (userSnapshot) {
+        userSnapshot.forEach(function (rxSnapshot) {
+                 console.log(userSnapshot.val());
+            rxSnapshot.child("rx").forEach(function (drugs) {
+                phone = '+1' + rxSnapshot.val().phone.replace(/\D/g, "");
+                console.log(phone);
+                console.log(drugs.val().name);
+                $.ajax({
+                    method: 'POST',
+                    url: 'https://api.twilio.com/2010-04-01/Accounts/AC9c5c700cf0fe2bbb0484d59280bde9fa/Messages.json',
+                    data: {
+                        Body: rxSnapshot.val().firstName +
+                            " - you're due to take your " + drugs.val().name +
+                            ". Respond 1 when you take your dose.",
+                        To: phone,
+                        From: '+12158834229 '
+                    },
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': 'Basic ' + authData
+                    },
+                    success: function (data) {
+                        console.info(data);
+                    }
+                });
+            });
+        });
+    });
+</script>
+</body>
+
+</html>

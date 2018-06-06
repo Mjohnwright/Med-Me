@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Sign In</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--jQuery UI -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+    crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+  <!-- MedMe Styles -->
+  <link rel="stylesheet" type="text/css" href="assets/CSS/reset.css">
+  <link rel="stylesheet" type="text/css" href="assets/CSS/style.css">
+  <!-- MeMe Scripts -->
+  <script>
+    var page = '';
+  </script>
+  <script src="assets/javascript/medme-firebase.js"></script>
+
+  <style>
+    #registration {
+      margin-left: 200px;
+    }
+
+    #sign-in {
+      float: right;
+      margin-right: 200px;
+    }
+
+    fieldset {}
+
+    .text-input,
+    .text-input-small {
+      width: 500px;
+    }
+
+    legend {
+      font-size: 25px;
+      font-style: bold;
+      text-align: center
+    }
+
+    h3 {
+      margin-left: 140px;
+    }
+
+    p {
+      font-size: 10px;
+    }
+
+    #registration {
+      float: left;
+    }
+  </style>
+</head>
+
+<body id="myPage">
+
+  <nav class="navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="index.html">ABOUT</a>
+          </li>
+          <li class="menu-signinout-link"></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="jumbotron text-center">
+    <img src="assets/images/logo2.png" alt="LOGO">
+    </a>
+    <h1 id="medhead">
+      <i>Sign Up</i>
+    </h1>
+  </div>
+  <div class="alert-area"></div>
+
+
+  <form id="registration" method="post">
+    <div class="form-group" id="update-user-profile">
+
+      <fieldset>
+        <h3>Register Account</h3>
+
+
+        <label class="control-label" for="email">Email:</label>
+        <input class="form-control text-input" id="email" name="email" type="email" placeholder="name@email.com" required>
+
+        <label class="control-label" for="password">Password:</label>
+        <input class="form-control text-input" id="password" name="password" type="password" minlength="6" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$"
+          title="Please include a minimum of 6 characters, with at least 1 uppercase, 1 lowercase, and 1 numeric character."
+          placeholder="6-10 characters" required>
+
+        <label class="control-label" for="password-confirm">Confirm Password</label>
+        <input class="form-control text-input" id="passwordConf" name="passConf" type="password" onblur="validation()" required>
+
+        <label class="control-label" for="first-name">First Name:</label>
+        <input class="form-control text-input" id="first-name" name="firstname" required>
+
+        <label class="control-label" for="last-name">Last Name:</label>
+        <input class="form-control text-input" id="last-name" name="lastname" required>
+
+        <label class="control-label" for="address">Street Address:</label>
+        <input class="form-control text-input" id="address" name="address" required>
+
+        <label class="control-label" for="city">City:</label>
+        <input class="form-control text-input" id="city" required>
+
+        <label class="control-label" for="state">State:</label>
+        <input class="form-control text-input-small" name="state" id="state" required placeholder="2 letter format">
+
+        <label class="control-label" for="zip">Zip:</label>
+        <input class="form-control text-input-small" id="zip" name="zip" pattern="[0-9]{5}" size="5" minlength="5" maxlength="5"
+          title="5 digit zip code" placeholder="5 numeric digits" required>
+
+        <label class="control-label" for="phone">Phone:</label>
+        <input class="form-control text-input-small" id="phone" name="phone" size="12" minlength="12" maxlength="12" pattern="\d{3}[\-]\d{3}[\-]\d{4}"
+          placeholder="xxx-xxx-xxxx" title="format 555-555-1234" required>
+        <br>
+        <label class="control-label" for="terms-accepted">I agree to terms and conditions:</label>
+        <br>
+        <input id="terms-accepted" name="terms" type="checkbox" title="You must agree to the MedMe terms and conditions to proceed."
+          required>
+        <br>
+
+        <button type="submit" class="btn btn-primary pill" id="btn-registration">Create Account</button>
+        <br>
+
+      </fieldset>
+    </div>
+  </form>
+
+
+
+  <form id="sign-in" method="post">
+    <div class="form-group" id="update-user-profile">
+      <fieldset>
+        <h3>Sign In</h3>
+
+        <!-- <legend>Sign In</legend> -->
+
+        <label class="control-label" for="email">Email:</label>
+        <input class="form-control text-input" id="login-email" name="email" type="email" required>
+
+        <label class="control-label" for="password">Password:</label>
+        <input class="form-control text-input" id="login-password" name="password" type="password" minlength="6" required>
+        <br>
+        <button type="submit" class="btn btn-primary pill" id="btn-passwd-login">Sign In</button>
+        <br>
+      </fieldset>
+    </div>
+  </form>
+
+
+
+  <div id="about" class="container-fluid">
+    <div class="row">
+      <div class="col-sm-4 col-sm-offset-4">
+        <h4>Disclaimer:</h4>
+        <p> The information on this site is not intended or implied to be a substitute for professional medical advice, diagnosis
+          or treatment. All content, including text, graphics, images and information, contained on or available through
+          this web site is for general information purposes only. MedME makes no representation and assumes no responsibility
+          for the accuracy of information contained on or available through this web site, and such information is subject
+          to change without notice. You are encouraged to confirm any information obtained from or through this web site
+          with other sources, and review all information regarding any medical condition or treatment with your physician.
+          NEVER DISREGARD PROFESSIONAL MEDICAL ADVICE OR DELAY SEEKING MEDICAL TREATMENT BECAUSE OF SOMETHING YOU HAVE READ
+          ON OR ACCESSED THROUGH THIS WEB SITE.</p>
+        <br>
+      </div>
+    </div>
+  </div>
+  <script>
+    function validation() {
+      var password = $("#password").val();
+      var password2 = $("#passwordConf").val();
+      if (password != password2) {
+        $("#passwordConf").val("");
+        $(".alert-area").html("<div class='alert alert-danger fade in alert-dismissible'><a href='#' class='close' data-dismiss='alert'>&times;</a>Passwords do not match. Please try again</div>");
+      }
+      else {
+        $(".alert-area").html("");
+      }
+    }
+  </script>
+</body>
+
+</html>
